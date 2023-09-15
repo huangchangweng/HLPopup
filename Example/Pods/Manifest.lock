@@ -1,0 +1,16 @@
+PODS:
+  - HLPopup (0.1.0)
+
+DEPENDENCIES:
+  - HLPopup (from `../`)
+
+EXTERNAL SOURCES:
+  HLPopup:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  HLPopup: 5fa36596b63d2f4ebeb10871854db529de665b8e
+
+PODFILE CHECKSUM: 95a05e69964e69baf3897057841f00e597135e2d
+
+COCOAPODS: 1.12.0

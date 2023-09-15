@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '10.0'
+
+target 'HLPopup_Example' do
+  pod 'HLPopup', :path => '../'
+
+  target 'HLPopup_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

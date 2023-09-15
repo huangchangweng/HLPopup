@@ -1,0 +1,6 @@
+framework module HLPopup {
+  umbrella header "HLPopup-umbrella.h"
+
+  export *
+  module * { export * }
+}
