@@ -80,6 +80,7 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
         
         self.shouldDismissOnBackgroundTouch = YES;
         self.shouldDismissOnContentTouch = NO;
+        self.keyboardChangeFollowed = NO;
         
         self.showType = HLPopupShowTypeFadeIn;
         self.dismissType = HLPopupDismissTypeFadeOut;
@@ -95,8 +96,6 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
         
         /// Register for notifications
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusbarOrientation:) name:UIApplicationDidChangeStatusBarFrameNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     }
     return self;
 }
@@ -120,6 +119,7 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
 }
 
 #pragma mark - Public Class Methods
+
 + (HLPopup *)popupWithContentView:(UIView *)contentView {
     HLPopup *popup = [[[self class] alloc] init];
     popup.contentView = contentView;
@@ -190,6 +190,11 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
     [self showWithParameters:parameters.mutableCopy];
 }
 
+- (void)dismiss
+{
+    [self dismissAnimated:YES];
+}
+
 - (void)dismissAnimated:(BOOL)animated {
     [self dismiss:animated];
 }
@@ -203,8 +208,8 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
         _isShowing = NO;
         _isBeingDismissed = NO;
         
-        if (self.willStartShowingBlock != nil) {
-            self.willStartShowingBlock();
+        if (self.willPresentBlock != nil) {
+            self.willPresentBlock(self);
         }
         
         __weak typeof(self) weakSelf = self;
@@ -262,8 +267,8 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
                 strongSelf.isBeingShown = NO;
                 strongSelf.isShowing = YES;
                 strongSelf.isBeingDismissed = NO;
-                if (strongSelf.didFinishShowingBlock) {
-                    strongSelf.didFinishShowingBlock();
+                if (strongSelf.didPresentBlock) {
+                    strongSelf.didPresentBlock(self);
                 }
                 ///Dismiss popup after duration, if duration is greater than 0.0.
                 if (duration > 0.0) {
@@ -521,8 +526,8 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
         /// Cancel previous `-dismissAnimated:` requests.
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(dismiss) object:nil];
         
-        if (self.willStartDismissingBlock) {
-            self.willStartDismissingBlock();
+        if (self.willDismissBlock) {
+            self.willDismissBlock(self);
         }
         
         __weak typeof(self) weakSelf = self;
@@ -547,8 +552,8 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
                 strongSelf.isBeingShown = NO;
                 strongSelf.isShowing = NO;
                 strongSelf.isBeingDismissed = NO;
-                if (strongSelf.didFinishDismissingBlock) {
-                    strongSelf.didFinishDismissingBlock();
+                if (strongSelf.didDismissBlock) {
+                    strongSelf.didDismissBlock(self);
                 }
             };
             
@@ -748,11 +753,15 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
     return finalContainerFrame;
 }
 
-- (void)dismiss {
-    [self dismiss:YES];
+- (void)bindKeyboardNotifications {
+    if (self.keyboardChangeFollowed) {
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+        [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
+    }
 }
 
-#pragma mark - Properties
+#pragma mark - Setter & Getter
+
 - (UIView *)backgroundView {
     if (!_backgroundView) {
         _backgroundView = [UIView new];
@@ -772,6 +781,13 @@ const HLPopupLayout HLPopupLayoutCenter = { HLPopupHorizontalLayoutCenter, HLPop
         _containerView.backgroundColor = UIColor.clearColor;
     }
     return _containerView;
+}
+
+- (void)setKeyboardChangeFollowed:(BOOL)keyboardChangeFollowed {
+    if (keyboardChangeFollowed) {
+        _keyboardChangeFollowed = keyboardChangeFollowed;
+        [self bindKeyboardNotifications];
+    }
 }
 
 @end

@@ -171,31 +171,34 @@ NS_ASSUME_NONNULL_BEGIN
  A block to be executed when showing animation started.
  The default value is nil.
  */
-@property (nonatomic, copy, nullable) void(^willStartShowingBlock)(void);
+@property (nonatomic, copy, nullable) void(^willPresentBlock)(HLPopup *popup);
 
 /**
  A block to be executed when showing animation finished.
  The default value is nil.
  */
-@property (nonatomic, copy, nullable) void(^didFinishShowingBlock)(void);
+@property (nonatomic, copy, nullable) void(^didPresentBlock)(HLPopup *popup);
 
 /**
  A block to be executed when dismissing animation started.
  The default value is nil.
  */
-@property (nonatomic, copy, nullable) void(^willStartDismissingBlock)(void);
+@property (nonatomic, copy, nullable) void(^willDismissBlock)(HLPopup *popup);
 
 /**
  A block to be executed when dismissing animation finished.
  The default value is nil.
  */
-@property (nonatomic, copy, nullable) void(^didFinishDismissingBlock)(void);
+@property (nonatomic, copy, nullable) void(^didDismissBlock)(HLPopup *popup);
 
 /**
  Adjust the spacing between with the keyboard.
  @discussion The default value is `0`.
  */
 @property (nonatomic, assign) CGFloat keyboardOffsetSpacing;
+
+/// default is NO. if YES, Will adjust view position when keyboard changes
+@property (nonatomic, assign) BOOL keyboardChangeFollowed;
 
 /**
  Convenience Initializers
@@ -274,6 +277,11 @@ NS_ASSUME_NONNULL_BEGIN
  If duration is `0.0` or `less`, it will be considered infinity.
  */
 - (void)showAtCenterPoint:(CGPoint)point inView:(UIView *)view duration:(NSTimeInterval)duration NS_SWIFT_NAME(show(center:inView:duration:));
+
+/**
+ Dismiss popup.
+ */
+- (void)dismiss;
 
 /**
  Dismiss popup.
